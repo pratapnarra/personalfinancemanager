@@ -1,10 +1,16 @@
 import logo from './logo.svg';
+
 import './css/App.css';
-import { BrowserRouter } from 'react-router-dom';
+import {Switch, BrowserRouter, Route,Routes } from 'react-router-dom';
+import ProtectedRoutes from './ProtectedRoutes';
 import { useState } from 'react';
 import Login from './Login';
+import Register from './Register';
+import Home from './Home';
 import useUser from './useUser';
 import LandScreen from './LandScreen';
+import 'react-notifications/lib/notifications.css';
+import { NotificationContainer } from 'react-notifications';
 
 // function setUser(userT){
 //   sessionStorage.getItem('token',JSON.stringify(userT));
@@ -32,9 +38,27 @@ function App() {
   // console.log(user);
   // console.log("HII");
   return (
-     <BrowserRouter>
-     <LandScreen/>
-     </BrowserRouter>
+
+    <>
+    
+     <Routes>
+        <Route path='/' element={<LandScreen/>}></Route>
+        <Route path="/Register" element ={<Register/>}/>
+        <Route path="/Login" element ={<Login/>} />
+        <Route path="/Home" element={
+          <ProtectedRoutes>
+            <Home/>
+          </ProtectedRoutes>
+        }
+        />
+        {/* <ProtectedRoutes path='/Home' element ={<Home/>}/> */}
+        
+    </Routes>
+    <NotificationContainer />
+     
+     
+     
+    </>
     
 
     

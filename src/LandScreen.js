@@ -1,6 +1,6 @@
 import React from "react";
 import './css/LandScreen.css';
-import { BrowserRouter, Route, Routes, useNavigate } from "react-router-dom";
+import { BrowserRouter, Route, Routes, useNavigate} from "react-router-dom";
 import Register from "./Register";
 import Login from "./Login";
 
@@ -8,9 +8,9 @@ import Login from "./Login";
 
 export default function LandScreen(){
    
+    //let history = useHistory();
     
-    
-    
+
 
     let navigate = useNavigate();
     const navRegister = () =>{
@@ -35,17 +35,19 @@ export default function LandScreen(){
   
    <div class="float-child">
     <button onClick={navRegister}> Register</button>
-    <button onClick={navLogin}> Login</button>
+    <button onClick={()=>{
+        navigate("/Login")
+    }}> Login</button>
+
     
-    <Routes>
-        <Route path="/Register" element ={<Register/>}/>
-        <Route path="/Login" element ={<Login/>} />
-    </Routes>
+    
+    
     
     
     </div>
   
    </div>
+   
         </>
     )
 }

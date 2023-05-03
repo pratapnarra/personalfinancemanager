@@ -1,0 +1,9 @@
+.home-list{
+    list-style-type: none;
+
+}
+.budget-label{
+    font-size: x-large;
+    font-weight: 500;
+    color: black;
+}
