@@ -161,6 +161,67 @@ app.post('/setbudget', auth, (request,response)=>{
     
 })
 
+//aggregate expenses
+app.post('/aggregateexpenses',auth,(request,response)=>{
+    const {userId, useremail} = jwt.verify(request.body.token,'RANDOM-TOKEN')
+    Expense.aggregate([
+        {$match: {uid:userId}},
+        {
+            $group:{
+                _id:"$type",
+                totalCost:{$sum:'$cost'},
+            },
+        },
+    ])
+    .then((result)=>{
+        response.status(200).send({result,})
+    })
+    .catch((err)=>{
+        response.status(500).send({
+                message:"Error aggregating",
+                err
+            })
+    })
+})
+
+//Getting user budget
+app.post('/userbudget',auth,(request,response)=>{
+    const {userId, useremail} = jwt.verify(request.body.token,'RANDOM-TOKEN')
+    Budget.findOne({uid: userId})
+    .then((budget)=>{
+        response.status(200).send({budget,})
+    })
+    .catch((err)=>{
+        response.status(500).send({
+                message:"Error finding the budget",
+                err
+            })
+    })
+})
+
+//Get daily expenditure
+app.post('/dailyexpenditure',auth,(request,response)=>{
+    const {userId, useremail} = jwt.verify(request.body.token,'RANDOM-TOKEN')
+    Expense.aggregate([
+        {$match: {uid:userId}},
+        {
+            $group:{
+                _id:"$date",
+                totalCost:{$sum:'$cost'},
+            },
+        },
+    ])
+    .then((result)=>{
+        response.status(200).send({result,})
+    })
+    .catch((err)=>{
+        response.status(500).send({
+                message:"Error aggregating daily expenditure",
+                err
+            })
+    })
+})
+
 
 
 app.listen({port}, () => console.log('API is running on http://localhost:8080/'));

@@ -3,6 +3,9 @@ import axios from "axios";
 import Cookies from "universal-cookie";
 import { Chart } from "react-google-charts";
 import { NotificationManager} from 'react-notifications';
+import { Link } from "react-router-dom";
+import CalendarHeatmap from 'react-calendar-heatmap';
+import 'react-calendar-heatmap/dist/styles.css';
 import {
   MDBRow,
   MDBCol,
@@ -19,6 +22,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers";
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { Autocomplete,TextField,InputAdornment, Grid } from "@mui/material";
 import './css/Home.css'; 
+import { useNavigate } from 'react-router-dom';
 
 
 
@@ -26,7 +30,8 @@ import './css/Home.css';
 export default function Home() {
     const cookies = new Cookies();
     const token = cookies.get("TOKEN");
-    console.log(token);
+    console.log(token)
+    const navigate = useNavigate();
     const [message, setMessage] = useState("");
 
     const logout=()=>{
@@ -50,12 +55,13 @@ export default function Home() {
    })
    .catch((err)=>{
     err = new Error();
+    navigate('/login', { replace: true });
    });
 }, []);
 
 
-   const categories = ['Grocery','Transportation','Rent and Utilities','Personal Care'
-                     ,'Food','Entertainment','Miscellaneous','Shopping' ];
+   const categories = ['grocery','transport','rent','personal'
+                     ,'food','entertainment','miscellaneous','shopping' ];
    
    const [expense, setExpense] = useState("");
    const [type, setType] = React.useState("");;
@@ -73,6 +79,31 @@ export default function Home() {
    const [miscellaneous, setMiscellaneous] = useState(0);
    const [datebuget, setDateBudget] = React.useState(null);
    const [budgetFormDisabled, setBudgetFormDisabled] = useState(false);
+
+   //chart variables
+   var [piedata, setPieData] = useState();
+   const [hasPieData, setHasPieData] = useState(false);
+  //  const cats = { 'Food':1,'Shopping':2 ,'Grocery':3,'Transportation':4,'Rent and Utilities':5,'Personal Care':6
+  //                    ,'Entertainment':7,'Miscellaneous':8}
+   const cats = {1: 'food', 2: 'shopping', 3: 'grocery', 4: 'transport', 5: 'rent', 6: 'personal', 7: 'entertainment', 8: 'miscellaneous'}
+                 
+   const intbudget = [
+    ["Category","Expense"],
+    ["Food",0],
+    ['Shopping',0],
+    ['Grocery',0],
+    ['Transportation',0],
+    ['Rent and Utilities',0],
+    ['Personal Care',0],
+    ['Entertainment',0],
+    ['Miscellaneous',0]
+  ]                  
+   const [actualBudget, setActualBudget] = useState(intbudget); 
+   const [usedBudget, setUsedBudget] = useState(intbudget);
+   const [expensesObj, setExpensesObj] = useState({});
+   const [hasBarData, setHasBarData] = useState(false);
+   const [dailyExp, setDailyExp] = useState()
+   const [hasCalData, setHasCalData] = useState(false);
    
 
    const handleDateSubmit = (e) =>{
@@ -86,7 +117,6 @@ export default function Home() {
     e.preventDefault();
     axios(configuration)
   .then((res)=>{
-    console.log(res);
     NotificationManager.success('Expense Added', 'Success', 3000);
    })
   .catch((err)=>{console.log(err);
@@ -97,6 +127,120 @@ export default function Home() {
   setType("");
   setCost(0);
    }
+
+   const  updateCharts = (e)=>{
+    // const expensesobj = {"":0}
+    e.preventDefault();
+    const configuration ={
+    method: "post",
+    url:"http://localhost:8080/aggregateexpenses",
+    headers:{
+        Authorization: `Bearer ${token}`,
+    },
+    data:{
+      token,
+    }
+  }
+  axios(configuration)
+  .then((res)=>{
+    const arr = [];
+    const newexpobj = {};
+
+    for (let i = 0; i < res.data.result.length; i++) {
+      arr.push([res.data.result[i]._id,res.data.result[i].totalCost]);
+      var key1 = res.data.result[i]._id;
+      var val1 = res.data.result[i].totalCost
+      newexpobj[key1] = val1;
+ }
+
+    arr.sort();
+    
+    if(newexpobj){
+     setExpensesObj(newexpobj);
+     setHasBarData(true);
+     }
+    setPieData([["Category","Cost"],...arr]);
+    setHasPieData(true)
+    })
+  .catch((err)=>{console.log(err);})
+
+
+  //get the budget set by user
+   const configuration_bud ={
+    method: "post",
+    url:"http://localhost:8080/userbudget",
+    headers:{
+        Authorization: `Bearer ${token}`,
+    },
+    data:{
+      token,
+    }
+  }
+  axios(configuration_bud)
+  .then((res)=>{
+    const newactualBudget = actualBudget.map((arr,i)=>{
+      
+      if (i==0)
+        return arr;
+        return [arr[0],res.data.budget[cats[i]]];
+    });
+    
+    setActualBudget(newactualBudget);
+});
+  
+
+
+  const configuration_dailyexp = {
+    method: "post",
+    url:"http://localhost:8080/dailyexpenditure",
+    headers:{
+        Authorization: `Bearer ${token}`,
+    },
+    data:{
+      token
+    }
+    
+  }
+
+  axios(configuration_dailyexp)
+  .then((res)=>{
+    console.log(res.data)
+     const arr2 = [[
+    {
+      type: "date",
+      id: "Date",
+    },
+    {
+      type: "number",
+      id: "Expense",
+    },
+  ]];
+
+    for (let i = 0; i < res.data.result.length; i++) {
+      arr2.push([new Date(res.data.result[i]._id),res.data.result[i].totalCost]);
+ }
+  setDailyExp(arr2);
+  setHasCalData(true);
+  
+  })
+  .catch((err)=>{console.log(err)})
+
+   }
+
+   useEffect(() => {
+    if(expensesObj){
+      const newusedBudget = usedBudget.map((arr,i)=>{
+    if (cats[i]  in expensesObj)
+    return [arr[0],expensesObj[cats[i]]]; 
+    return arr;
+  });
+  setUsedBudget(newusedBudget);
+  }
+  }, [expensesObj]);
+
+  console.log(hasBarData);
+
+  
 
    
    //expense configuration
@@ -166,9 +310,68 @@ export default function Home() {
   ["Sleep", 7],
 ];
 const options = {
-  title: "My Daily Activities",
+  title: "Category wise expenses",
   is3D: true,
 };
+
+const renderPieChart = () =>{
+  
+  if(hasPieData){
+    return  <Chart
+      chartType="PieChart"
+      data={piedata}
+      options={options}
+      width={"100%"}
+      height={"400px"}/>
+  } 
+}
+
+const diffdata = {
+  old: actualBudget,
+  new: usedBudget,
+};
+
+  const options2 = {
+  legend: { position: "top" },
+  diff: { newData: { widthFactor: 1 } }
+};
+
+const optionscal = {
+  title: "Daily expenditure",
+};
+
+const renderBarChart = () =>{
+  if(hasBarData){
+    return <Chart
+      chartType="ColumnChart"
+      width="100%"
+      height="400px"
+      diffdata={diffdata}
+      options={options2}
+    />
+  } 
+}
+
+const renderCalendarChart = () =>{
+  if(hasCalData){
+    return <Chart
+      chartType="Calendar"
+      width="100%"
+      height="400px"
+      data={dailyExp}
+      options={optionscal}
+    />
+  }
+}
+
+
+
+
+
+
+
+
+
 
 
 
@@ -369,12 +572,23 @@ const options = {
       </MDBCol>
     </MDBRow>
 
-    <Chart
-      chartType="PieChart"
-      data={data}
-      options={options}
-      width={"100%"}
-      height={"400px"}/>
+    <MDBCol size='12'>
+        <MDBBtn  onClick={(e)=>updateCharts(e)}>Update Charts</MDBBtn>
+      </MDBCol>
+      
+    {renderPieChart()}
+    <div style={{paddingleft:'20%'}}>
+    {renderBarChart()}
+    </div>
+    
+    <div style={{ width:'100%',justifyContent:'center',paddingLeft:'20%'}}>
+      
+       {renderCalendarChart()};
+     
+      
+      </div>
+    
+    
       
     </div>
   );
