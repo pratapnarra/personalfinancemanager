@@ -3,6 +3,15 @@ import './css/LandScreen.css';
 import { BrowserRouter, Route, Routes, useNavigate} from "react-router-dom";
 import Register from "./Register";
 import Login from "./Login";
+import Wave from "./Wave";
+import Header from "./Header";
+import UserFeedback from "./LandScreenComponents/UserFeedback";
+import { Container, Image } from "react-bootstrap";
+import blobBgService from "../src/img/blob-bg-service.svg";
+import Blob from "./LandScreenComponents/Blob";
+import useBody from "./LandScreenComponents/useBody";
+
+
 
 
 
@@ -23,31 +32,33 @@ export default function LandScreen(){
         let path = '/Login'
         navigate(path,{ replace: false })
      }
+     useBody({
+    background: "#eee",
+  });
     
     return(
         <>
-    <div class="float-container">
+        <Container style={{ marginBottom: "3rem" }}>
+        <Blob />
+        <Blob />
+        <Image
+          src={blobBgService}
+          className="position-absolute bg-services d-none d-lg-block"
+          style={{ zIndex: -1 }}
+        />
 
-   <div class="float-child">
-    <h1>Do you need help to manage your expenses?</h1>
-    
-   </div>
-  
-   <div class="float-child">
-    <button onClick={navRegister}> Register</button>
-    <button onClick={()=>{
-        navigate("/Login")
-    }}> Login</button>
+        <Header />
+        <div style={{marginLeft:'0%', marginRight:'0%',width:'100%'}}>
+       <Wave/>
+        </div>
+        
+        <UserFeedback />
+      </Container>
 
+        
     
-    
-    
-    
-    
-    </div>
-  
-   </div>
    
         </>
     )
 }
+

@@ -11,6 +11,8 @@ import useUser from './useUser';
 import LandScreen from './LandScreen';
 import 'react-notifications/lib/notifications.css';
 import { NotificationContainer } from 'react-notifications';
+import SetGoals from './SetGoals';
+import Forum from './Forum';
 
 // function setUser(userT){
 //   sessionStorage.getItem('token',JSON.stringify(userT));
@@ -45,6 +47,8 @@ function App() {
         <Route path='/' element={<LandScreen/>}></Route>
         <Route path="/Register" element ={<Register/>}/>
         <Route path="/Login" element ={<Login/>} />
+        <Route path="/SetGoals" element ={<SetGoals/>}/>
+        <Route path="/Forum" element={<Forum/>}/>
         <Route path="/Home" element={
           <ProtectedRoutes>
             <Home/>

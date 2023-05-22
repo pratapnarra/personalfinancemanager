@@ -23,6 +23,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { Autocomplete,TextField,InputAdornment, Grid } from "@mui/material";
 import './css/Home.css'; 
 import { useNavigate } from 'react-router-dom';
+import HomeHeader from "./HomeHeader";
 
 
 
@@ -34,11 +35,7 @@ export default function Home() {
     const navigate = useNavigate();
     const [message, setMessage] = useState("");
 
-    const logout=()=>{
-        cookies.remove("TOKEN", { path: "/" });
-        window.location.href = "/";
-
-    }
+    
 
     useEffect(()=>{
         const configuration ={
@@ -381,20 +378,21 @@ const renderCalendarChart = () =>{
     
   return (
     <div className="text-center" style={{justifyContent:'center', width:'100%'}}>
+      <HomeHeader/>
       
-      <h1 className="text-center">Auth Component</h1>
+      {/* <h1 className="text-center">Auth Component</h1> */}
       
-      <h3 className="text-center text-danger">{message}</h3>
-      <MDBBtn type="submit" variant="danger" onClick={()=>logout()}>Logout</MDBBtn>
+      {/* <h3 className="text-center text-danger">{message}</h3> */}
+      
 
       <Grid container spacing={6} style={{justifyContent:'center', width:'100%'}}>
         <Grid item xs={6} md={4} style={{marginRight:'20%'}}>
-          <h1>Act now to rein your expenses</h1>
+          <h1>Act now to take control over your expenses</h1>
         
-          <ul class='home-list' >
+          <ul class='home-list' style={{paddingTop:'5%'}} >
           <li><h2>1. Set a Budget</h2></li>
-          <li><h2>2. Add Expenses</h2></li>
-          <li><h2>3. Monitor</h2></li>
+          <li style={{paddingTop:'4%'}}><h2>2. Add Expenses</h2></li>
+          <li style={{paddingTop:'4%'}}><h2>3. Monitor</h2></li>
           </ul>
         </Grid>
 
@@ -492,10 +490,10 @@ const renderCalendarChart = () =>{
           }}  />
       </Grid>
 
-      <Grid item xs={6} sm={3} >
+      <Grid item xs={6} sm={3} style={{paddingRight:'10%'}}  >
         <label class='budget-label'>Entertainment:</label>
       </Grid>
-      <Grid item xs={6} sm={3}>
+      <Grid item xs={6} sm={3} style={{paddingLeft:'10%'}} >
         <TextField variant="outlined" 
         value ={entertainment}
         onChange = {(e)=>setEntertainment(e.target.value)}
@@ -506,10 +504,10 @@ const renderCalendarChart = () =>{
           }} />
       </Grid>
 
-      <Grid item xs={6} sm={3} >
+      <Grid item xs={6} sm={3} style={{paddingRight:'10%'}}  >
         <label class='budget-label'>Miscellaneous:</label>
       </Grid>
-      <Grid item xs={6} sm={3} >
+      <Grid item xs={6} sm={3} style={{paddingLeft:'10%'}}  >
         
         <TextField variant="outlined" 
         value ={miscellaneous}
